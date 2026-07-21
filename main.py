@@ -39,11 +39,11 @@ DATA_FILE = os.path.join(DATA_DIR, "data.xlsx")
 # Training hyperparameters
 NUM_EPOCHS = 1000
 LEARNING_RATE = 0.001
-BATCH_SIZE = 2
+BATCH_SIZE = 1
 
 # Physical constraint parameters
-WINDOW = 12
-SHIFT_RANGE = 1
+WINDOW = 36
+SHIFT_RANGE = 3
 
 # Loss weights
 LOSS_DATA_WEIGHT = 1.0
@@ -210,28 +210,20 @@ def physical(data1, data2, window=WINDOW, shift_range=SHIFT_RANGE):
 class PredictModel(nn.Module):
     """
     Fully-connected network for curve prediction.
-
-    Architecture:
-        Input -> Linear(256) + LeakyReLU
-              -> Linear(128) + GELU + Dropout(0.1)
-              -> Linear(256) + GELU
-              -> Linear(output_dim)
     """
 
     def __init__(self, input_dim, output_dim):
         super().__init__()
 
         self.input_layer = nn.Sequential(
-            nn.Linear(input_dim, 256),
+            nn.Linear(input_dim, 128),
             nn.LeakyReLU(inplace=True),
         )
         self.net = nn.Sequential(
-            nn.Linear(256, 512),
-            nn.GELU(),
-            nn.Linear(512, 256),
-            nn.GELU(),
+            nn.Linear(128, 128),
+            nn.LeakyReLU(inplace=True),
         )
-        self.output_layer = nn.Linear(256, output_dim)
+        self.output_layer = nn.Linear(128, output_dim)
 
         self._init_weights()
 
