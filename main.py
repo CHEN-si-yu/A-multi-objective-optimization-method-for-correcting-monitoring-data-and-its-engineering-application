@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 #  Configuration
 # ============================================================================
 
-SEED = 1008611
+SEED = 12321
 torch.manual_seed(SEED)
 np.random.seed(SEED)
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
@@ -37,9 +37,9 @@ PIC_DIR = os.path.join(BASE_DIR, "pic")
 DATA_FILE = os.path.join(DATA_DIR, "data.xlsx")
 
 # Training hyperparameters
-NUM_EPOCHS = 3000
+NUM_EPOCHS = 1000
 LEARNING_RATE = 0.001
-BATCH_SIZE = 8
+BATCH_SIZE = 2
 
 # Physical constraint parameters
 WINDOW = 12
@@ -226,10 +226,9 @@ class PredictModel(nn.Module):
             nn.LeakyReLU(inplace=True),
         )
         self.net = nn.Sequential(
-            nn.Linear(256, 128),
+            nn.Linear(256, 512),
             nn.GELU(),
-            nn.Dropout(0.1),
-            nn.Linear(128, 256),
+            nn.Linear(512, 256),
             nn.GELU(),
         )
         self.output_layer = nn.Linear(256, output_dim)
@@ -598,10 +597,7 @@ if __name__ == "__main__":
         "--ids", type=int, nargs="+", default=None,
         help="Point indices to process (default: 0 1 2 3 4 5 6 7)",
     )
-    parser.add_argument(
-        "--no-train", action="store_true",
-        help="Skip training; load existing checkpoints only",
-    )
+
     args = parser.parse_args()
 
-    main(point_ids=args.ids, is_train=not args.no_train)
+    main(point_ids=args.ids, is_train= False)

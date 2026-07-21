@@ -22,3 +22,7 @@ Thumbs.db
 # Temp files
 ~$*.xlsx
 ~$*.docx
+
+# Result
+.model/
+.pic/
