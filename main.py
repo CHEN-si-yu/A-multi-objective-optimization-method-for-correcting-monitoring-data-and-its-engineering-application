@@ -442,14 +442,6 @@ def plot_curve(observe, model_curve, dps, save_path=None):
         plt.show()
 
 
-def print_metric_table(i, s_obs, s_cal, s_dps, p_obs, p_cal, p_dps, d_obs, d_cal, d_dps):
-    """Print the 3x3 metric table for a single point."""
-    print(f"\n===== Point {i + 1} =====")
-    print(f"{'':>8}{'obs':>10} | {'cal':>10} | {'dps':>10} ")
-    print("-" * 100)
-    print(f"{'smooth':>8}{s_obs[i]:>10.4f} | {s_cal[i]:>10.4f} | {s_dps[i]:>10.4f} ")
-    print(f"{'phys':>8}{p_obs[i]:>10.4f} | {p_cal[i]:>10.4f} | {p_dps[i]:>10.4f} ")
-    print(f"{'dev':>8}{d_obs[i]:>10.4f} | {d_cal[i]:>10.4f} | {d_dps[i]:>10.4f} ")
 
 
 # ============================================================================
@@ -512,19 +504,6 @@ def run_single(point_id, UV_obs, UV_cal_interp, is_train=True):
         plot_curve(observed[i], model_curve[i], dps_output[i], save_path=save_path)
         print(f"  [Point {point_id}] Figure saved: {save_path}")
 
-    # ---- Metrics ----
-    s_obs, s_cal, s_dps = compute_smoothness(observed, model_curve, dps_output)
-    p_obs, p_cal, p_dps = compute_physical(observed, model_curve, dps_output)
-    d_obs, d_cal, d_dps = compute_deviation(observed, model_curve, dps_output)
-
-    for i in range(len(dps_output)):
-        print_metric_table(i, s_obs, s_cal, s_dps, p_obs, p_cal, p_dps, d_obs, d_cal, d_dps)
-
-    return {
-        "smooth": (s_obs, s_cal, s_dps),
-        "phys": (p_obs, p_cal, p_dps),
-        "dev": (d_obs, d_cal, d_dps),
-    }
 
 
 def main(point_ids=None, is_train=True):
@@ -546,35 +525,12 @@ def main(point_ids=None, is_train=True):
     print(f"Done — {UV_cal_interp.shape[1]} columns loaded, "
           f"processing {len(point_ids)} point(s)\n")
 
-    all_results = {}
     for pid in point_ids:
         print(f"\n{'=' * 60}")
         print(f"  Processing Point {pid}")
         print(f"{'=' * 60}")
-        all_results[pid] = run_single(pid, UV_obs, UV_cal_interp, is_train=is_train)
-
-    # ---- Summary table ----
-    hdr = (f"{'ID':>4}{'s_obs':>10}{'s_cal':>10}{'s_dps':>10}"
-           f"{'p_obs':>10}{'p_cal':>10}{'p_dps':>10}"
-           f"{'d_obs':>10}{'d_cal':>10}{'d_dps':>10}")
-    sep = "─" * 96
-    print(f"\n{'=' * 96}")
-    print(f"  Summary")
-    print(f"{'=' * 96}")
-    print(hdr)
-    print(sep)
-    for pid in point_ids:
-        r = all_results[pid]
-        so, sc, sd = r["smooth"]
-        po, pc, pd = r["phys"]
-        do, dc, dd = r["dev"]
-        print(f"{pid:>4}"
-              f"{so[0]:>10.4f}{sc[0]:>10.4f}{sd[0]:>10.4f}"
-              f"{po[0]:>10.4f}{pc[0]:>10.4f}{pd[0]:>10.4f}"
-              f"{do[0]:>10.4f}{dc[0]:>10.4f}{dd[0]:>10.4f}")
-
+        run_single(pid, UV_obs, UV_cal_interp, is_train=is_train)
     print(f"\nAll figures saved to: {PIC_DIR}")
-    return all_results
 
 
 # ============================================================================
